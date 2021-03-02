@@ -36,7 +36,7 @@ class CollectLinks:
             executable = './chromedriver/chromedriver_win.exe'
         elif platform.system() == 'Linux':
             print('Detected OS : Linux')
-            executable = './chromedriver/chromedriver_linux'
+            executable = "chromedriver/chromedriver_linux"
         elif platform.system() == 'Darwin':
             print('Detected OS : Mac')
             executable = './chromedriver/chromedriver_mac'
