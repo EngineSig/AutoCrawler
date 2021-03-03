@@ -37,7 +37,7 @@ class CollectLinks:
             print('Detected OS : Windows')
             executable = './chromedriver/chromedriver_win.exe'
         elif platform.system() == 'Linux':
-            print('Detected OS : Linux')
+            print('Detected OS : Linux_1')
             print('what')
             executable = '/home/seokjoo/AutoCrawler/chromedriver/chromedriver_linux'
         elif platform.system() == 'Darwin':
