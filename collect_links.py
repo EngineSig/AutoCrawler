@@ -51,7 +51,10 @@ class CollectLinks:
         chrome_options.add_argument('--disable-dev-shm-usage')
         if no_gui:
             chrome_options.add_argument('--headless')
+
+        print("before browser")
         self.browser = webdriver.Chrome(executable, chrome_options=chrome_options)
+        print("after browser")
 
         browser_version = 'Failed to detect version'
         chromedriver_version = 'Failed to detect version'
