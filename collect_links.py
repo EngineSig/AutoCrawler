@@ -38,8 +38,7 @@ class CollectLinks:
             executable = './chromedriver/chromedriver_win.exe'
         elif platform.system() == 'Linux':
             print('Detected OS : Linux_1')
-            print('what')
-            executable = '/home/seokjoo/AutoCrawler/chromedriver/chromedriver_linux'
+            executable = './chromedriver/chromedriver_linux'
         elif platform.system() == 'Darwin':
             print('Detected OS : Mac')
             executable = './chromedriver/chromedriver_mac'
@@ -55,9 +54,7 @@ class CollectLinks:
         if no_gui:
             chrome_options.add_argument('--headless')
 
-        print("before browser")
         self.browser = webdriver.Chrome(executable, chrome_options=chrome_options)
-        print("after browser")
 
         browser_version = 'Failed to detect version'
         chromedriver_version = 'Failed to detect version'
