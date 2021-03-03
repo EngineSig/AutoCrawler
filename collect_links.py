@@ -25,12 +25,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import os.path as osp
+import os
 
 
 class CollectLinks:
     def __init__(self, no_gui=False):
         executable = ''
-
+        curr_path = os.getcwd()
+        print(curr_path)
         if platform.system() == 'Windows':
             print('Detected OS : Windows')
             executable = './chromedriver/chromedriver_win.exe'
