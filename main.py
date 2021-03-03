@@ -23,6 +23,7 @@ import argparse
 from collect_links import CollectLinks
 import imghdr
 import base64
+import easy_ocr_module
 
 
 class Sites:
@@ -326,6 +327,11 @@ class AutoCrawler:
         else:
             print('Data imbalance not detected.')
 
+def filter_images(do_recognize = False): # runs ocr with easyocr and delete images without text
+    keywords = AutoCrawler.get_keywords()
+    for keyword in keywords:
+        easy_ocr_module.run_ocr(keyword, do_recognize=False)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -365,3 +371,6 @@ if __name__ == '__main__':
                           do_google=_google, do_naver=_naver, full_resolution=_full,
                           face=_face, no_gui=_no_gui, limit=_limit)
     crawler.do_crawling()
+
+    filter_images(do_recognize = False)
+
