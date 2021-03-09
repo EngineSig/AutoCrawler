@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import os
 import json
+import datetime
 
 
 class NpEncoder(json.JSONEncoder):
@@ -17,10 +18,32 @@ class NpEncoder(json.JSONEncoder):
             return super(NpEncoder, self).default(obj)
 
 
-def run_ocr(keyword=None, do_recognize=False):
-    print("Sorting out images without text")
-    img_path = os.getcwd() + "\\"
+def add_annotation_log():
+    annotation_log = {}
+    annotation_log["worker"] = os.getlogin()  # machine login id
+    annotation_log["timestamp"] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    annotation_log["tool_version"] = "alpha"  # self.version
 
+    """
+     :key "usability": Boolean, Whether Upstage is free to use, 
+     :key "public" : open to public or not"
+     :key "type" : license type. (e.g. MIT license, CC BY 4.0)
+     :key "holder" : license holder
+    """
+    license_tag = {"usablility": True,
+                   "public": True,
+                   "type": "crawled",
+                   "holder": "crawled"}
+    annotation_log["license"] = license_tag
+    return annotation_log
+
+
+def run_ocr(keyword=None, path=None, do_recognize=False):
+    print("Sorting out images without text")
+    if path is None:
+        curr_path = os.getcwd() + "\\"
+    else:
+        curr_path = path
     # Can use only a pair of language with english at a time. So far.
     languages = ['ko', 'en']
     reader = easyocr.Reader(lang_list=languages)
@@ -32,25 +55,27 @@ def run_ocr(keyword=None, do_recognize=False):
 
     if keyword is None:
         file_name = "test.json"
+        img_path = curr_path
     else:
-        file_name = img_path + keyword + ".json"
-        img_path = img_path + "download" + "\\" + keyword + "\\"
+        img_path = curr_path + "/" + keyword + "/"
 
-    data = {}
+    login_id = os.getlogin()
+    data = {}  # image level
     # iterate through image
     for entry in os.listdir(img_path):
         # If the folder is mixed with non-image files
         if entry.endswith(img_types):
 
-            #print(os.path.isfile(img_path + entry))
+            # print(os.path.isfile(img_path + entry))
             np_img_array = np.fromfile(img_path + entry, np.uint8)
             image = cv2.imdecode(np_img_array, cv2.IMREAD_COLOR)
-            #image = cv2.imread(img_path + entry, encoding = 'utf-8')
+            # image = cv2.imread(img_path + entry, encoding = 'utf-8')
             horizontal_list, free_list = reader.detect(image)
 
             if len(horizontal_list) == 0 and len(free_list) == 0:
                 os.remove(img_path + entry)
-            #if reconizer enabled, save tags into json file
+                print(entry + " text not detected, image deleted")
+            # if reconizer enabled, save tags into json file
             elif do_recognize:
                 recognize_results = reader.recognize(image, horizontal_list, free_list)
                 add_dict = {"words": []}
@@ -64,9 +89,15 @@ def run_ocr(keyword=None, do_recognize=False):
                 data[entry] = add_dict
 
     if do_recognize:
+        data["annotation_log"] = add_annotation_log()
+        gt_path = curr_path + "download\\" + keyword + "_gt\\"
+        if not os.path.exists(gt_path):
+            os.makedirs(gt_path)
+        file_name = gt_path + keyword + ".json"
         with open(file_name, "wt", encoding="utf8") as json_file:
             json_file.write(json.dumps(data, sort_keys=True, ensure_ascii=False, indent=4, cls=NpEncoder))
 
 
 if __name__ == '__main__':
+    # for test run
     run_ocr(keyword='테스트용검색아무거나', do_recognize=False)

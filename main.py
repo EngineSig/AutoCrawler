@@ -14,7 +14,6 @@ Copyright 2018 YoongiKim
    limitations under the License.
 """
 
-
 import os
 import requests
 import shutil
@@ -24,6 +23,7 @@ from collect_links import CollectLinks
 import imghdr
 import base64
 import easy_ocr_module
+import platform
 
 
 class Sites:
@@ -53,17 +53,18 @@ class Sites:
 
 class AutoCrawler:
     def __init__(self, skip_already_exist=True, n_threads=4, do_google=True, do_naver=True, download_path='download',
-                 full_resolution=False, face=False, no_gui=False, limit=0):
+                 full_resolution=False, face=False, no_gui=False, limit=0, ocr=False):
         """
         :param skip_already_exist: Skips keyword already downloaded before. This is needed when re-downloading.
         :param n_threads: Number of threads to download.
         :param do_google: Download from google.com (boolean)
         :param do_naver: Download from naver.com (boolean)
-        :param download_path: Download folder path
+        :param download_path: Download folder path. If run in Linux, default = '/repos/ocr-datasets/crawled'
         :param full_resolution: Download full resolution image instead of thumbnails (slow)
         :param face: Face search mode
         :param no_gui: No GUI mode. Acceleration for full_resolution mode.
         :param limit: Maximum count of images to download. (0: infinite)
+        :param ocr: run easyocr to generate GT
         """
 
         self.skip = skip_already_exist
@@ -75,8 +76,15 @@ class AutoCrawler:
         self.face = face
         self.no_gui = no_gui
         self.limit = limit
+        self.ocr = ocr
 
-        os.makedirs('./{}'.format(self.download_path), exist_ok=True)
+        if platform.system() == 'Linux':
+            self.download_path = '/repos/ocr-datasets/crawled'
+            os.makedirs(self.download_path, exist_ok=True)
+        else:
+            os.makedirs('./{}'.format(self.download_path), exist_ok=True)
+
+
 
     @staticmethod
     def all_dirs(path):
@@ -121,8 +129,11 @@ class AutoCrawler:
 
     @staticmethod
     def make_dir(dirname):
-        current_path = os.getcwd()
-        path = os.path.join(current_path, dirname)
+        if platform.system() == 'Linux':
+            path = dirname
+        else:
+            current_path = os.getcwd()
+            path = os.path.join(current_path, dirname)
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -189,7 +200,8 @@ class AutoCrawler:
                     ext = self.get_extension_from_link(link)
                     is_base64 = False
 
-                no_ext_path = '{}/{}/{}_{}'.format(self.download_path.replace('"', ''), keyword, site_name, str(index).zfill(4))
+                no_ext_path = '{}/{}/{}_{}'.format(self.download_path.replace('"', ''), keyword, site_name,
+                                                   str(index).zfill(4))
                 path = no_ext_path + '.' + ext
                 self.save_object_to_file(response, path, is_base64=is_base64)
 
@@ -327,10 +339,12 @@ class AutoCrawler:
         else:
             print('Data imbalance not detected.')
 
-def filter_images(do_recognize = False): # runs ocr with easyocr and delete images without text
-    keywords = AutoCrawler.get_keywords()
-    for keyword in keywords:
-        easy_ocr_module.run_ocr(keyword, do_recognize=False)
+    def filter_images(self):  # runs ocr with easyocr and delete images without text
+
+        keywords = AutoCrawler.get_keywords()
+        for keyword in keywords:
+            dir_name = '{}/{}'.format(self.download_path, keyword)
+            easy_ocr_module.run_ocr(keyword, dir_name, self.ocr)
 
 
 if __name__ == '__main__':
@@ -340,12 +354,17 @@ if __name__ == '__main__':
     parser.add_argument('--threads', type=int, default=4, help='Number of threads to download.')
     parser.add_argument('--google', type=str, default='true', help='Download from google.com (boolean)')
     parser.add_argument('--naver', type=str, default='true', help='Download from naver.com (boolean)')
-    parser.add_argument('--full', type=str, default='false', help='Download full resolution image instead of thumbnails (slow)')
+    parser.add_argument('--full', type=str, default='false',
+                        help='Download full resolution image instead of thumbnails (slow)')
     parser.add_argument('--face', type=str, default='false', help='Face search mode')
-    parser.add_argument('--no_gui', type=str, default='auto', help='No GUI mode. Acceleration for full_resolution mode. '
-                                                                   'But unstable on thumbnail mode. '
-                                                                    'Default: "auto" - false if full=false, true if full=true')
-    parser.add_argument('--limit', type=int, default=0, help='Maximum count of images to download per site. (0: infinite)')
+    parser.add_argument('--no_gui', type=str, default='auto',
+                        help='No GUI mode. Acceleration for full_resolution mode. '
+                             'But unstable on thumbnail mode. '
+                             'Default: "auto" - false if full=false, true if full=true')
+    parser.add_argument('--limit', type=int, default=0,
+                        help='Maximum count of images to download per site. (0: infinite)')
+    parser.add_argument('--ocr', type=str, default='false',
+                        help='run ocr for recognition. (boolean)')
     args = parser.parse_args()
 
     _skip = False if str(args.skip).lower() == 'false' else True
@@ -355,6 +374,7 @@ if __name__ == '__main__':
     _full = False if str(args.full).lower() == 'false' else True
     _face = False if str(args.face).lower() == 'false' else True
     _limit = int(args.limit)
+    _ocr = False if str(args.full).lower() == 'false' else True
 
     no_gui_input = str(args.no_gui).lower()
     if no_gui_input == 'auto':
@@ -369,8 +389,8 @@ if __name__ == '__main__':
 
     crawler = AutoCrawler(skip_already_exist=_skip, n_threads=_threads,
                           do_google=_google, do_naver=_naver, full_resolution=_full,
-                          face=_face, no_gui=_no_gui, limit=_limit)
+                          face=_face, no_gui=_no_gui, limit=_limit, ocr=_ocr)
     crawler.do_crawling()
 
-    filter_images(do_recognize = False)
-
+    # use ocr to filter images. if --ocr ==true, run text recognition and generate .txt file
+    crawler.filter_images()
