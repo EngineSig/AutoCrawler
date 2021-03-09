@@ -57,7 +57,7 @@ def run_ocr(keyword=None, path=None, do_recognize=False):
         file_name = "test.json"
         img_path = curr_path
     else:
-        img_path = curr_path + "/" + keyword + "/"
+        img_path = '{}/{}'.format(curr_path, keyword)
 
     login_id = os.getlogin()
     data = {}  # image level
@@ -65,15 +65,16 @@ def run_ocr(keyword=None, path=None, do_recognize=False):
     for entry in os.listdir(img_path):
         # If the folder is mixed with non-image files
         if entry.endswith(img_types):
+            img_file = '{}/{}'.format(img_path, entry)
 
             # print(os.path.isfile(img_path + entry))
-            np_img_array = np.fromfile(img_path + entry, np.uint8)
+            np_img_array = np.fromfile(img_file, np.uint8)
             image = cv2.imdecode(np_img_array, cv2.IMREAD_COLOR)
             # image = cv2.imread(img_path + entry, encoding = 'utf-8')
             horizontal_list, free_list = reader.detect(image)
 
             if len(horizontal_list) == 0 and len(free_list) == 0:
-                os.remove(img_path + entry)
+                os.remove(img_file)
                 print(entry + " text not detected, image deleted")
             # if reconizer enabled, save tags into json file
             elif do_recognize:
@@ -90,10 +91,10 @@ def run_ocr(keyword=None, path=None, do_recognize=False):
 
     if do_recognize:
         data["annotation_log"] = add_annotation_log()
-        gt_path = curr_path + "download\\" + keyword + "_gt\\"
+        gt_path = '{}/{}'.format(curr_path, keyword + "_gt")
         if not os.path.exists(gt_path):
             os.makedirs(gt_path)
-        file_name = gt_path + keyword + ".json"
+        file_name = '{}/{}'.format(gt_path, keyword + ".json")
         with open(file_name, "wt", encoding="utf8") as json_file:
             json_file.write(json.dumps(data, sort_keys=True, ensure_ascii=False, indent=4, cls=NpEncoder))
 

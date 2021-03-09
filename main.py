@@ -343,8 +343,7 @@ class AutoCrawler:
 
         keywords = AutoCrawler.get_keywords()
         for keyword in keywords:
-            dir_name = '{}/{}'.format(self.download_path, keyword)
-            easy_ocr_module.run_ocr(keyword, dir_name, self.ocr)
+            easy_ocr_module.run_ocr(keyword, self.download_path, self.ocr)
 
 
 if __name__ == '__main__':
