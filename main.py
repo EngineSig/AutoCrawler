@@ -139,7 +139,12 @@ class AutoCrawler:
             current_path = os.getcwd()
             path = os.path.join(current_path, dirname)
         if not os.path.exists(path):
-            os.makedirs(path, 0o777)
+            try:
+                original_umask = os.umask(0)
+                os.makedirs(path, 0o777)
+            finally:
+                os.umask(original_umask)
+            
 
     @staticmethod
     def get_keywords(keywords_file='keywords.txt'):
