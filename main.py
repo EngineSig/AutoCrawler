@@ -144,7 +144,8 @@ class AutoCrawler:
                 os.makedirs(path, 0o777)
             finally:
                 os.umask(original_umask)
-            
+                os.makedirs(path, 0o777)
+
 
     @staticmethod
     def get_keywords(keywords_file='keywords.txt'):
