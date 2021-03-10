@@ -24,6 +24,7 @@ import imghdr
 import base64
 import easy_ocr_module
 import platform
+import stat
 
 
 class Sites:
@@ -80,6 +81,9 @@ class AutoCrawler:
 
         if platform.system() == 'Linux':
             self.download_path = '/repos/ocr-datasets/crawled'
+            print("running in Linux server")
+            print("default path:", self.download_path)
+
             os.makedirs(self.download_path, exist_ok=True)
         else:
             os.makedirs('./{}'.format(self.download_path), exist_ok=True)
@@ -135,7 +139,7 @@ class AutoCrawler:
             current_path = os.getcwd()
             path = os.path.join(current_path, dirname)
         if not os.path.exists(path):
-            os.makedirs(path)
+            os.makedirs(path, 0o777)
 
     @staticmethod
     def get_keywords(keywords_file='keywords.txt'):
@@ -269,8 +273,12 @@ class AutoCrawler:
         tasks = []
 
         for keyword in keywords:
-            dir_name = '{}/{}'.format(self.download_path, keyword)
-            if os.path.exists(os.path.join(os.getcwd(), dir_name)) and self.skip:
+            if self.download_path == "download":
+                dir_name = os.path.join(os.getcwd(),'{}/{}'.format(self.download_path, keyword))
+            else:
+                dir_name = '{}/{}'.format(self.download_path, keyword)
+
+            if os.path.exists(dir_name) and self.skip:
                 print('Skipping already existing directory {}'.format(dir_name))
                 continue
 
