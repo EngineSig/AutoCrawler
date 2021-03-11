@@ -79,18 +79,29 @@ class AutoCrawler:
         self.limit = limit
         self.ocr = ocr
         self.running_os = platform.system()
-        print(self.running_os)
 
-        if self.running_os is 'Linux_1' and self.download_path is 'download':
-            self.download_path = '/repos/ocr-datasets/crawled'
-            print("running in Linux server")
-            print("default path:", self.download_path)
+        print("Detected OS: ", self.running_os)
 
-            os.makedirs(self.download_path, exist_ok=True)
-        elif self.download_path is 'download':
-            os.makedirs('./{}'.format(self.download_path), mode= 0o777, exist_ok=True)
-        else:
-            os.makedirs(self.download_path, exist_ok=True)
+        if self.running_os is 'Linux_1':
+            if self.download_path is 'download':  # running in server without specified path
+                self.download_path = '/repos/ocr-datasets/crawled'
+                os.makedirs('./{}'.format(self.download_path), exist_ok=True, mode=0o777)
+                print("Path not specified")
+                print("Download path:", self.download_path)
+
+            else:  # running in server with specified path by user
+                os.makedirs(self.download_path, exist_ok=True, mode=0o777)
+                print("Path Specified")
+                print("Download path:", self.download_path)
+        else:  # Running in OS other than Linux
+            if self.download_path is 'download':
+                os.makedirs('./{}'.format(self.download_path), exist_ok=True)
+                print("Path not Specified")
+                print("Download path:", self.download_path)
+            else:  # path specified by the user
+                os.makedirs(self.download_path, exist_ok=True)
+                print("Path Specified")
+                print("Download path:", self.download_path)
 
     @staticmethod
     def all_dirs(path):
@@ -132,18 +143,6 @@ class AutoCrawler:
         if ext == 'jpeg':
             ext = 'jpg'
         return ext  # returns None if not valid
-
-    @staticmethod
-    def make_dir(dirname):
-        if platform.system() == 'Linux_1':
-            path = dirname
-        else:
-            current_path = os.getcwd()
-            path = os.path.join(current_path, dirname)
-        if not os.path.exists(path):
-            original_umask = os.umask(0)
-            os.umask(original_umask)
-            os.makedirs(path, 0o777)
 
     @staticmethod
     def get_keywords(keywords_file='keywords.txt'):
@@ -230,6 +229,23 @@ class AutoCrawler:
             except Exception as e:
                 print('Download failed - ', e)
                 continue
+
+    def make_dir(self, dirname):  # This was changed from original code, so a bit complicated
+        if self.running_os is 'Linux_1':
+            if self.download_path is 'download':  # running in server without specified path
+                os.makedirs(dirname, exist_ok=True, mode=0o777)
+
+            else:  # running in server with specified path by user
+                os.makedirs(dirname, exist_ok=True, mode=0o777)
+
+        else:  # Running in OS other than Linux
+            if self.download_path is 'download':
+                current_path = os.getcwd()
+                create_path = os.path.join(current_path, dirname)
+                os.makedirs('./{}'.format(create_path), exist_ok=True)
+            else:  # path specified by the user
+                os.makedirs(dirname, exist_ok=True)
+
 
     def download_from_site(self, keyword, site_code):
         site_name = Sites.get_text(site_code)
