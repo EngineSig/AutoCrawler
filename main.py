@@ -80,7 +80,7 @@ class AutoCrawler:
         self.ocr = ocr
         self.running_os = platform.system()
 
-        if self.running_os is 'Linux':
+        if self.running_os == 'Linux':
             print("Detected OS: ", self.running_os)
             if self.download_path is 'download':  # running in server without specified path
                 print("here1")
