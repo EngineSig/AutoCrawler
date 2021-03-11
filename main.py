@@ -60,7 +60,7 @@ class AutoCrawler:
         :param n_threads: Number of threads to download.
         :param do_google: Download from google.com (boolean)
         :param do_naver: Download from naver.com (boolean)
-        :param download_path: Download folder path. If run in Linux, default = '/repos/ocr-datasets/crawled'
+        :param download_path: Download folder path. If run in Linux_1, default = '/repos/ocr-datasets/crawled'
         :param full_resolution: Download full resolution image instead of thumbnails (slow)
         :param face: Face search mode
         :param no_gui: No GUI mode. Acceleration for full_resolution mode.
@@ -79,8 +79,9 @@ class AutoCrawler:
         self.limit = limit
         self.ocr = ocr
         self.running_os = platform.system()
+        print(self.running_os)
 
-        if self.running_os is 'Linux' and self.download_path is 'download':
+        if self.running_os is 'Linux_1' and self.download_path is 'download':
             self.download_path = '/repos/ocr-datasets/crawled'
             print("running in Linux server")
             print("default path:", self.download_path)
@@ -134,7 +135,7 @@ class AutoCrawler:
 
     @staticmethod
     def make_dir(dirname):
-        if platform.system() == 'Linux':
+        if platform.system() == 'Linux_1':
             path = dirname
         else:
             current_path = os.getcwd()
