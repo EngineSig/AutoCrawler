@@ -236,11 +236,9 @@ class AutoCrawler:
 
     def make_dir(self, dirname):  # This was changed from original code, so a bit complicated
         if self.running_os is 'Linux':
-            if self.download_path == 'download':  # running in server without specified path
-                os.makedirs(dirname, exist_ok=True, mode=0o777)
-
-            else:  # running in server with specified path by user
-                os.makedirs(dirname, exist_ok=True, mode=0o777)
+            oldmask = os.umask(000)
+            os.makedirs(dirname, exist_ok=True, mode=0o777)
+            os.umask(oldmask)
 
         else:  # Running in OS other than Linux
             if self.download_path == 'download':
