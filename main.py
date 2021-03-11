@@ -246,7 +246,6 @@ class AutoCrawler:
             else:  # path specified by the user
                 os.makedirs(dirname, exist_ok=True)
 
-c
     def download_from_site(self, keyword, site_code):
         site_name = Sites.get_text(site_code)
         add_url = Sites.get_face_url(site_code) if self.face else ""
