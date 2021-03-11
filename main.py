@@ -393,6 +393,8 @@ if __name__ == '__main__':
                         help='Maximum count of images to download per site. (0: infinite)')
     parser.add_argument('--ocr', type=str, default='false',
                         help='run ocr for recognition. (boolean)')
+    parser.add_argument('--download_path', type=str, default='download',
+                        help='download path')
     args = parser.parse_args()
 
     _skip = False if str(args.skip).lower() == 'false' else True
@@ -403,6 +405,7 @@ if __name__ == '__main__':
     _face = False if str(args.face).lower() == 'false' else True
     _limit = int(args.limit)
     _ocr = False if str(args.full).lower() == 'false' else True
+    _download_path = str(args.download_path)
 
     no_gui_input = str(args.no_gui).lower()
     if no_gui_input == 'auto':
@@ -417,7 +420,7 @@ if __name__ == '__main__':
 
     crawler = AutoCrawler(skip_already_exist=_skip, n_threads=_threads,
                           do_google=_google, do_naver=_naver, full_resolution=_full,
-                          face=_face, no_gui=_no_gui, limit=_limit, ocr=_ocr)
+                          face=_face, no_gui=_no_gui, limit=_limit, ocr=_ocr, download_path = _download_path)
     crawler.do_crawling()
 
     # use ocr to filter images. if --ocr ==true, run text recognition and generate .txt file
