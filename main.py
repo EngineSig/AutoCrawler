@@ -80,27 +80,29 @@ class AutoCrawler:
         self.ocr = ocr
         self.running_os = platform.system()
 
-
-
         if self.running_os is 'Linux':
             print("Detected OS: ", self.running_os)
             if self.download_path is 'download':  # running in server without specified path
+                print("here1")
                 self.download_path = '/repos/ocr-datasets/crawled'
                 os.makedirs('./{}'.format(self.download_path), exist_ok=True, mode=0o777)
                 print("Path not specified")
                 print("Download path:", self.download_path)
 
             else:  # running in server with specified path by user
+                print("here2")
                 os.makedirs(self.download_path, exist_ok=True, mode=0o777)
                 print("Path Specified")
                 print("Download path:", self.download_path)
         else:  # Running in OS other than Linux
             print("Detected OS: ", self.running_os)
             if self.download_path is 'download':
+                print("here3")
                 os.makedirs('./{}'.format(self.download_path), exist_ok=True)
                 print("Path not Specified")
                 print("Download path:", self.download_path)
             else:  # path specified by the user
+                print("here4")
                 os.makedirs(self.download_path, exist_ok=True)
                 print("Path Specified")
                 print("Download path:", self.download_path)
