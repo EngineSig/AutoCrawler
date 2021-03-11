@@ -78,17 +78,18 @@ class AutoCrawler:
         self.no_gui = no_gui
         self.limit = limit
         self.ocr = ocr
+        self.running_os = platform.system()
 
-        if platform.system() == 'Linux':
+        if self.running_os is 'Linux' and self.download_path is 'download':
             self.download_path = '/repos/ocr-datasets/crawled'
             print("running in Linux server")
             print("default path:", self.download_path)
 
             os.makedirs(self.download_path, exist_ok=True)
+        elif self.download_path is 'download':
+            os.makedirs('./{}'.format(self.download_path), mode= 0o777, exist_ok=True)
         else:
-            os.makedirs('./{}'.format(self.download_path), exist_ok=True)
-
-
+            os.makedirs(self.download_path, exist_ok=True)
 
     @staticmethod
     def all_dirs(path):
@@ -142,9 +143,6 @@ class AutoCrawler:
             original_umask = os.umask(0)
             os.umask(original_umask)
             os.makedirs(path, 0o777)
-
-
-
 
     @staticmethod
     def get_keywords(keywords_file='keywords.txt'):
@@ -279,7 +277,7 @@ class AutoCrawler:
 
         for keyword in keywords:
             if self.download_path == "download":
-                dir_name = os.path.join(os.getcwd(),'{}/{}'.format(self.download_path, keyword))
+                dir_name = os.path.join(os.getcwd(), '{}/{}'.format(self.download_path, keyword))
             else:
                 dir_name = '{}/{}'.format(self.download_path, keyword)
 
