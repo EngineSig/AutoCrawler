@@ -82,7 +82,7 @@ class AutoCrawler:
 
         if self.running_os == 'Linux':
             print("Detected OS: ", self.running_os)
-            if self.download_path is 'download':  # running in server without specified path
+            if self.download_path == 'download':  # running in server without specified path
                 print("here1")
                 self.download_path = '/repos/ocr-datasets/crawled'
                 os.makedirs('./{}'.format(self.download_path), exist_ok=True, mode=0o777)
@@ -96,7 +96,7 @@ class AutoCrawler:
                 print("Download path:", self.download_path)
         else:  # Running in OS other than Linux
             print("Detected OS: ", self.running_os)
-            if self.download_path is 'download':
+            if self.download_path == 'download':
                 print("here3")
                 os.makedirs('./{}'.format(self.download_path), exist_ok=True)
                 print("Path not Specified")
@@ -236,14 +236,14 @@ class AutoCrawler:
 
     def make_dir(self, dirname):  # This was changed from original code, so a bit complicated
         if self.running_os is 'Linux':
-            if self.download_path is 'download':  # running in server without specified path
+            if self.download_path == 'download':  # running in server without specified path
                 os.makedirs(dirname, exist_ok=True, mode=0o777)
 
             else:  # running in server with specified path by user
                 os.makedirs(dirname, exist_ok=True, mode=0o777)
 
         else:  # Running in OS other than Linux
-            if self.download_path is 'download':
+            if self.download_path == 'download':
                 current_path = os.getcwd()
                 create_path = os.path.join(current_path, dirname)
                 os.makedirs('./{}'.format(create_path), exist_ok=True)
