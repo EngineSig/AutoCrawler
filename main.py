@@ -25,6 +25,7 @@ import base64
 import easy_ocr_module
 import platform
 import stat
+from pathlib import Path
 
 
 class Sites:
@@ -85,7 +86,8 @@ class AutoCrawler:
             if self.download_path == 'download':  # running in server without specified path
                 print("here1")
                 self.download_path = '/repos/ocr-datasets/crawled'
-                os.makedirs('./{}'.format(self.download_path), exist_ok=True, mode=0o777)
+                Path(self.download_path).mkdir()
+                #os.makedirs('./{}'.format(self.download_path), exist_ok=True, mode=0o777)
                 print("Path not specified")
                 print("Download path:", self.download_path)
 
@@ -236,9 +238,10 @@ class AutoCrawler:
 
     def make_dir(self, dirname):  # This was changed from original code, so a bit complicated
         if self.running_os is 'Linux':
-            oldmask = os.umask(000)
-            os.makedirs(dirname, exist_ok=True, mode=0o777)
-            os.umask(oldmask)
+            Path(dirname).mkdir()
+            #oldmask = os.umask(000)
+            #os.makedirs(dirname, exist_ok=True, mode=0o777)
+            #os.umask(oldmask)
 
         else:  # Running in OS other than Linux
             if self.download_path == 'download':
