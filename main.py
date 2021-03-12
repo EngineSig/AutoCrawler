@@ -86,7 +86,7 @@ class AutoCrawler:
             if self.download_path == 'download':  # running in server without specified path
                 print("here1")
                 self.download_path = '/repos/ocr-datasets/crawled'
-                Path(self.download_path).mkdir()
+                Path(self.download_path).mkdir(parents=True, exist_ok=True)
                 #os.makedirs('./{}'.format(self.download_path), exist_ok=True, mode=0o777)
                 print("Path not specified")
                 print("Download path:", self.download_path)
@@ -238,7 +238,7 @@ class AutoCrawler:
 
     def make_dir(self, dirname):  # This was changed from original code, so a bit complicated
         if self.running_os is 'Linux':
-            Path(dirname).mkdir()
+            Path(dirname).mkdir(parents=True, exist_ok=True)
             #oldmask = os.umask(000)
             #os.makedirs(dirname, exist_ok=True, mode=0o777)
             #os.umask(oldmask)
